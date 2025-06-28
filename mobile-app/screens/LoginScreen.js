@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet } from 'react-native';
-import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import API from '../api/client';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -8,11 +9,8 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post('http://127.0.0.1:8000/api/login', {
-        email,
-        password
-      });
-      // token uložený do pamäte / storage
+      const res = await API.post('/login', { email, password });
+      await AsyncStorage.setItem('token', res.data.token);
       navigation.navigate('Chat');
     } catch (error) {
       alert('Prihlásenie zlyhalo');
@@ -22,7 +20,7 @@ export default function LoginScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>Email:</Text>
-      <TextInput value={email} onChangeText={setEmail} style={styles.input} />
+      <TextInput value={email} onChangeText={setEmail} style={styles.input} autoCapitalize="none" />
       <Text>Heslo:</Text>
       <TextInput value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
       <Button title="Prihlásiť sa" onPress={handleLogin} />
